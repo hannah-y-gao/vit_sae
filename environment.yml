@@ -1,0 +1,16 @@
+name: interp_robustness
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - numpy
+  - transformers
+  - pytorch
+  - torchvision
+  - torchaudio
+  - numpy
+  - pip
+  - pip:
+    - accelerate
+    - requests
