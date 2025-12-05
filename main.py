@@ -32,7 +32,7 @@ if __name__ == "__main__":
     val_tuning_data.set_format(type="torch", columns=["img", "class"])
     
     num_epochs = 8
-    lr=0.01
+    lr = 0.01
     batch_size = 128
     alpha = 0.7
     beta = 1
