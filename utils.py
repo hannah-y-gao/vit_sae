@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 import functools
-from datasets import load_dataset, Dataset, Features, Value, Image
+from datasets import load_dataset, Dataset, Features, Value, Image, concatenate_datasets
 from itertools import islice
 from tqdm import tqdm
 
@@ -15,21 +15,42 @@ def preprocess_data(sample, processor=None):
 def get_device():
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def get_imagenet_subset(purpose, size, start, end):
+def get_balanced_imagenet_subsets(dataset, N, num_classes, split, start_idx):
     '''
-    purpose: finetune, eval
-    size: dataset size
+    dataset: dataset name
+    start_idx: where to start streaming from
+    N: subset size
+    split: train or validation
+    
+    Returns balanced subset and the index the dataset stopped at
     '''
-    assert end-start == size, "Size mismatch"
-    ds = load_dataset("timm/imagenet-1k-wds", split="train", streaming=True)
-    mini_ds = Dataset.from_list(list(islice(ds, start, end)))
-    hf_path = f"DeepLearningProj/imagenet_{purpose}_subset_{size}"
-    mini_ds.push_to_hub(hf_path, private=True)
-    print(f"Saved to {hf_path}")
-    return mini_ds
+    ds = load_dataset(dataset, split=split, streaming=True)
+    assert N%num_classes == 0, "Dataset size not divisible by number of classes"
+    num_samples_per_class = N//num_classes
+    
+    num_samples_needed_per_class = {i: num_samples_per_class for i in range(num_classes)}
+    samples_list = []
+    for idx, sample in enumerate(islice(ds, start_idx, None)):
+        sample_class = sample['cls']
+        if num_samples_needed_per_class[sample_class] > 0:
+            num_samples_needed_per_class[sample_class] -= 1
+            samples_list.append(sample)
+            
+            # check if we're done
+            if all(num_samples_needed_per_class[label] == 0 for label in num_samples_needed_per_class.keys()):
+                break
+    
+    return Dataset.from_list(samples_list), start_idx + idx
 
-def load_data_hf(path, split):
-    return load_dataset(path, split=split)
+def save_dataset(ds, purpose, N):
+    '''
+    ds: dataset
+    purpose: purpose of dataset
+    N: dataset size
+    '''
+    hf_path = f"DeepLearningProj/imagenet_{purpose}_subset_{N}_balanced"
+    ds.push_to_hub(hf_path, private=True)
+    print(f"Saved to {hf_path}")
 
 class SAE(nn.Module):
     def __init__(self, dim, latent_dim):

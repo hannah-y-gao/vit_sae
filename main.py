@@ -3,9 +3,6 @@ from datasets import load_dataset, Dataset
 import wandb
 
 if __name__ == "__main__":
-    # fine_tuning_data = get_imagenet_subset("misc", 100) 
-    # fine_tuning_data = get_imagenet_subset("finetune", 5000)
-    # val_data = get_imagenet_subset("validation", 500, 5000, 5_500)
     
     print(f"DEVICE = {get_device()}")
 
