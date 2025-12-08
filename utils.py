@@ -8,11 +8,17 @@ from itertools import islice
 from tqdm import tqdm
 from pathlib import Path
 import wandb
+from PIL import Image
 
 def preprocess_data(sample, processor=None):
     image_as_tensor = processor(images=sample['jpg'].convert("RGB"), return_tensors="pt")
     return {'img': image_as_tensor['pixel_values'].squeeze(0), 'class': int(sample['cls'])}
-    
+
+def preprocess_batched_data(samples, processor=None):
+    rgb_samples = [Image.open(sample).convert("RGB") for sample in samples['jpg']]
+    image_as_tensor = processor(images=rgb_samples, return_tensors="pt")
+    return {'img': image_as_tensor['pixel_values'], 'class': samples['cls']}
+  
 def get_device():
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
