@@ -1,2 +1,0 @@
-Sparse autoencoders, or SAEs, have in recent years become a very popular 
-tool for interpreting machine learning models.
