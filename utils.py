@@ -8,10 +8,13 @@ from itertools import islice
 from tqdm import tqdm
 from pathlib import Path
 import wandb
-from PIL import Image
+from PIL import Image, ImageFilter
 
-def preprocess_data(sample, processor=None):
-    image_as_tensor = processor(images=sample['jpg'].convert("RGB"), return_tensors="pt")
+def preprocess_data(sample, processor=None, blur=False):
+    if blur:
+        image_as_tensor = processor(images=sample['jpg'].convert("RGB").filter(ImageFilter.GaussianBlur(radius=3)), return_tensors="pt")
+    else:
+        image_as_tensor = processor(images=sample['jpg'].convert("RGB"), return_tensors="pt")
     return {'img': image_as_tensor['pixel_values'].squeeze(0), 'class': int(sample['cls'])}
 
 def preprocess_batched_data(samples, processor=None):
@@ -171,7 +174,7 @@ def fine_tune(wandb_run, run_name, vit_handler, sae_module, train_dataset, val_d
             patience_remaining = patience_budget
             
             # save checkpoint
-            save_path = f"./checkpoints_lr/{run_name}"
+            save_path = f"./checkpoints/{run_name}"
             Path(save_path).mkdir(parents=True, exist_ok=True)
 
             torch.save(vit_handler.base_model.state_dict(), f"{save_path}/vit.pt")

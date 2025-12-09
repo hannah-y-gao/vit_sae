@@ -30,31 +30,71 @@ def get_checkpoint_model(alpha, beta, sae_expansion_factor):
     sae.to(device)
     return vit_handler, sae
 
-def evaluate_model(model, test_ds, batch_size=64):
+def get_bin_index(num_bins, value):
+    if value == 1.0:
+        return num_bins-1
+    for i in range(num_bins):
+        bin_start = i/num_bins
+        bin_end = (i+1)/num_bins
+        if bin_start <= value < bin_end:
+            return i 
+        
+    raise Exception("value not in [0, 1]")
+    
+def evaluate_model(model, test_ds, ECE_bins=15, batch_size=64):
+    '''
+    calculates accuracy and ECE using ECE_bins number of evenly split bins
+    '''
+    
     test_loader = DataLoader(test_ds, batch_size=batch_size, shuffle=False)
     device = get_device()
     
     model.eval()
     
-    correct = 0    
-    with torch.no_grad():        
+    total_correct = 0 # for accuracy calculation
+    binned_acc = [0]*ECE_bins # number correct per bin for ECE calculation
+    binned_conf = [0]*ECE_bins # sum of max probability per bin for ECE calculation
+    bin_size = [0]*ECE_bins # elements in bin
+    
+    with torch.no_grad():
         for batch in test_loader:
             X = batch['img'].to(device) # X: [B, channels, h, w]
             Y = batch['class'].to(device) # Y: [B]
             
             logits = model(X).logits # logits: [B, num_classes]
             predictions = torch.argmax(logits, dim=-1)
-            correct += torch.sum(predictions==Y).item()
+            max_probs = torch.max(torch.softmax(logits, dim=-1), dim=-1).values # max probabilites for each batch: [B]
+            
+            correctness = (predictions==Y)
+            
+            for i in range(max_probs.shape[0]):
+                bin_idx = get_bin_index(ECE_bins, max_probs[i])
+                binned_acc[bin_idx] += correctness[i].item()
+                binned_conf[bin_idx] += max_probs[i].item()
+                bin_size[bin_idx] += 1
+            
+            total_correct += torch.sum(correctness).item()
     
-    return correct/len(test_ds)
+    # calculate overall accuracy
+    accuracy = total_correct/len(test_ds)
+    
+    # calculate ECE
+    ECE = 0
+    for bin_num in range(ECE_bins):
+        sz = bin_size[bin_num]
+        if sz == 0:
+            continue
+        ECE += (sz/len(test_ds))*abs(binned_acc[bin_num]/sz - binned_conf[bin_num]/sz)
+    
+    return accuracy, ECE
             
 if __name__=="__main__":
     # perform a sweep of alpha, beta, and sae_expansion_factor
-    alpha_values = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    alpha_values = [-1.0, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     beta_values = [1.0]
-    sae_expansion_factor_values = [2, 4]
+    sae_expansion_factor_values = [2, 4, 32]
     
-    # DATASETS
+    # processor for datasets
     temp_processor = AutoImageProcessor.from_pretrained('google/vit-base-patch16-224', use_fast=True)
     
     # Imagenetv2
@@ -80,26 +120,44 @@ if __name__=="__main__":
     imagenetv2_ds.set_format(type="torch", columns=["img", "class"])
     print("Mapping complete")
     
-    # Imagenet
-    # test_dataset_path = "DeepLearningProj/imagenet_testing_subset_2000_balanced"
-    # test_ds = load_dataset(test_dataset_path, split="train")
-    # test_ds = test_ds.map(functools.partial(preprocess_data, processor=temp_processor), remove_columns=["jpg", "cls"])
-    # test_ds.set_format(type="torch", columns=["img", "class"])
+    # ImageNet
+    test_dataset_path = "DeepLearningProj/imagenet_testing_subset_2000_balanced"
+    non_blurred_imagenet_test_ds = load_dataset(test_dataset_path, split="train")
+    imagenet_test_ds = non_blurred_imagenet_test_ds.map(functools.partial(preprocess_data, processor=temp_processor), remove_columns=["jpg", "cls"])
+    imagenet_test_ds.set_format(type="torch", columns=["img", "class"])
     
-    hyperparam_accuracies = []
+    # Blurred ImageNet
+    blurred_imagenet_test_ds = non_blurred_imagenet_test_ds.map(functools.partial(preprocess_data, processor=temp_processor, blur=True), remove_columns=["jpg", "cls"])
+    blurred_imagenet_test_ds.set_format(type="torch", columns=["img", "class"])
     
-    lr = 0.001 # TODO: change if needed
+    #save example of blurred vs. non-blurred
+    non_blurred_0 = non_blurred_imagenet_test_ds[0]["jpg"].convert("RGB")
+    non_blurred_1 = non_blurred_imagenet_test_ds[1]["jpg"].convert("RGB")
+    blurred_0 = non_blurred_imagenet_test_ds[0]["jpg"].convert("RGB").filter(ImageFilter.GaussianBlur(radius=3))
+    blurred_1 = non_blurred_imagenet_test_ds[0]["jpg"].convert("RGB").filter(ImageFilter.GaussianBlur(radius=3))
+    
+    non_blurred_0.save("non_blurred_0.jpg")
+    non_blurred_1.save("non_blurred_1.jpg")
+    blurred_0.save("blurred_0.jpg")
+    blurred_1.save("blurred_1.jpg")
+    
+    print("saved blurred and non-blurred examples")
         
+    
+    # Evaluate all checkpointed models 
+    hyperparam_results = []
+    lr = 0.001 # TODO: change if needed
     for alpha in alpha_values:
         for beta in beta_values:
             for sae_expansion_factor in sae_expansion_factor_values:
                 vit_handler, sae = get_checkpoint_model(alpha, beta, sae_expansion_factor)
-                # accuracy = evaluate_model(vit_handler.base_model, test_ds)
-                robustness = evaluate_model(vit_handler.base_model, imagenetv2_ds)
+                imagenet_1k_accuracy, imagenet_1k_ECE = evaluate_model(vit_handler.base_model, imagenet_test_ds)
+                imagenet_v2_accuracy, imagenet_v2_ECE = evaluate_model(vit_handler.base_model, imagenetv2_ds)
+                blurred_imagenet_1k_accuracy, blurred_imagenet_1k_ECE = evaluate_model(vit_handler.base_model, blurred_imagenet_test_ds)
                 print("DONE")
-                hyperparam_accuracies.append({"alpha": alpha, "beta": beta, "lr": lr, "expansion": sae_expansion_factor, "robustness": robustness})
+                hyperparam_results.append({"alpha": alpha, "beta": beta, "lr": lr, "expansion": sae_expansion_factor, "imagenet_1k accuracy": imagenet_1k_accuracy, "imagenet_1k ECE": imagenet_1k_ECE, "imagenet_v2 accuracy": imagenet_v2_accuracy, "imagenet_v2 ECE": imagenet_v2_ECE, "blurred_imagenet_1k accuracy": blurred_imagenet_1k_accuracy, "blurred_imagenet_1k ECE": blurred_imagenet_1k_ECE})
     
-    df = pd.DataFrame(hyperparam_accuracies)
-    df.to_csv('imagenetv2 robustness.csv', index=False)
+    df = pd.DataFrame(hyperparam_results)
+    df.to_csv('FULL_RESULTS.csv', index=False)
                 
     

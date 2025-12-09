@@ -20,7 +20,7 @@ echo "Conda env: $CONDA_DEFAULT_ENV"
 
 epochs=30
 lr=0.001
-batch_size=256
+batch_size=64
 alpha_list=(
     -1
 )
@@ -34,8 +34,8 @@ beta_list=(
 )
 
 expansion_factor_list=(
-    2
-    4
+    # 2
+    # 4
     32
 )
 
