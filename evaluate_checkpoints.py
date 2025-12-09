@@ -134,7 +134,7 @@ if __name__=="__main__":
     non_blurred_0 = non_blurred_imagenet_test_ds[0]["jpg"].convert("RGB")
     non_blurred_1 = non_blurred_imagenet_test_ds[1]["jpg"].convert("RGB")
     blurred_0 = non_blurred_imagenet_test_ds[0]["jpg"].convert("RGB").filter(ImageFilter.GaussianBlur(radius=3))
-    blurred_1 = non_blurred_imagenet_test_ds[0]["jpg"].convert("RGB").filter(ImageFilter.GaussianBlur(radius=3))
+    blurred_1 = non_blurred_imagenet_test_ds[1]["jpg"].convert("RGB").filter(ImageFilter.GaussianBlur(radius=3))
     
     non_blurred_0.save("non_blurred_0.jpg")
     non_blurred_1.save("non_blurred_1.jpg")
