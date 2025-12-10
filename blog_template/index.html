@@ -50,6 +50,10 @@
 			text-align: left;
 			padding: 10px;  /* Optional: Adds padding inside the caption */
 	}
+	.highlight {
+		border: 2px solid #2ecc71 !important;
+		box-shadow: 0 0 12px rgba(46, 204, 113, 0.5);
+	}
 
 	img {
 			max-width: 100%; /* Make sure it fits inside the container */
@@ -57,13 +61,50 @@
 			display: block;
 			margin: auto;
 	}
-
 	
 	.my-video {
 			max-width: 100%; /* Make sure it fits inside the container */
 			height: auto;
 			display: block;
 			margin: auto;
+	}
+	body {
+		font-family: Arial, sans-serif;
+	}
+
+	.models-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+		gap: 16px;
+		margin: 20px 0;
+	}
+
+	.model-card {
+		border: 1px solid #ddd;
+		border-radius: 8px;
+		padding: 14px 16px;
+		background: #fafafa;
+	}
+
+	.model-header {
+		font-size: 0.9rem;
+		font-weight: bold;
+		margin-bottom: 6px;
+	}
+
+	.metric {
+		margin: 2px 0;
+		font-size: 0.7rem;
+		line-height: 1.25rem;
+	}
+
+	.good { color: #2a7b3f; }
+	.bad { color: #c92a2a; }
+
+	hr {
+		border: none;
+		border-top: 1px solid #ddd;
+		margin: 8px 0 10px 0;
 	}
 	/* Hide both video displays initially, will display based on JS detection */
   .vid-mobile, .vid-non-mobile { display: none; }
@@ -191,8 +232,8 @@
 
 </style>
 
-	  <title>The Platonic Representation Hypothesis</title>
-      <meta property="og:title" content="The Platonic Representation Hypothesis" />
+	  <title>Feature Disentanglement for Robustness: a Mechanistic Interpretability Approach</title>
+      <meta property="og:title" content="Feature Disentanglement for Robustness: a Mechanistic Interpretability Approach" />
 			<meta charset="UTF-8">
   </head>
 
@@ -205,7 +246,7 @@
 						<table class="header" align=left>
 								<tr>
 									<td colspan=4>
-										<span style="font-size: 32px; font-family: 'Courier New', Courier, monospace; /* Adds fallbacks */">A Grand Unified Theory of Deep Learning</span>
+										<span style="font-size: 32px; font-family: 'Courier New', Courier, monospace; /* Adds fallbacks */">Feature Disentanglement for Robustness: a Mechanistic Interpretability Approach</span>
 									</td>
 								</tr>
 								<tr>
@@ -240,16 +281,21 @@
 				</div>
 		    <div class="main-content-block">
 						<h1>Introduction</h1>
-            Recently, the mechanistic interpretability of large models has become a hot area of research, as we try to understand exactly how and what these deep networks are learning that enable them to perform so well. A common thread among such work is the desire for a sparse decomposition of model internals (activations, weights, etc) into understandable components that are human-understandable. In recent years, tools like sparse autoencoders and transcoders have become increasingly popular methods for attempting to decompose representations and modules within models in search for a human-interpretable and compositional explanation for model functionality. <br><br>
-			
-			While oftentimes such interpretability research is conducted in isolation to other deep learning objectives, e.g. circuit-finding, activation interpretation, model steering, etc. [INSERT CITATIONS], several works have explored connections between interpretability goals and other objectives like model robustness and downstream generalization [CITE WORKS]. For example, one study found that features extracted by SAEs perform better on OOD generalization and ontology construction than do the original embeddings learned by the model, although not consistently across architectures (https://arxiv.org/pdf/2508.11277). <br><br>
-			
-			In this work, we attempt to further bridge the areas of mechanistic interpretability and robustness. We do this by augmenting a model with a classical interpretability tool, the SAE, to encourage models to internally learn representations that are more decomposable. Unlike most prior works that rely on manual human-identification of generative factors/features underlying the data, this project’s use of SAE provides a non-supervised method of learning feature disentanglement (https://arxiv.org/pdf/1804.03599). <br><br>
-			
-			We fine-tune this augmented model with a new loss function that combines, in a controllable and schedulable way, the original base model’s loss function with the SAE’s loss function to encourage the model to learn sparser internal representations while still performing well on its intended task. Since robustness and sensitivity to distributional shifts in data are particularly relevant in the vision domain, we perform our analyses on a vision transformer model. <br><br>
-		    </div>
-		    <div class="margin-right-block">
-						Margin note that clarifies some detail #main-content-block for intro section.
+			<p>
+            Recently, the mechanistic interpretability of large models has become a hot area of research, as we try to understand exactly how and what these deep networks are learning that enable them to perform so well. A common thread among such work is the desire for a decomposition of model internals (activations, weights, etc) into components that are human-understandable. In recent years, tools like sparse autoencoders and transcoders have become increasingly popular methods for attempting to decompose representations and modules within models in search for a human-interpretable and compositional explanation for model functionality. 
+			</p>
+			<p>
+			Oftentimes such interpretability research, e.g. circuit-finding, activation interpretation, model steering, etc, is conducted in parallel to other deep learning objectives <a href="#Ameisen">[17]</a>. However, the direct connections between interpretability goals and other objectives like model robustness and downstream generalization is less explored <a href="#Kumar">[18]</a>. For example, one study found that features extracted by SAEs perform better on OOD generalization and ontology construction than do the original embeddings learned by the model, although not consistently across architectures <a href="#Olson">[1]</a>.
+			</p>
+			<p>
+			In this work, we attempt to further bridge the areas of mechanistic interpretability and robustness. We do this by augmenting a model with a classical interpretability tool, the SAE, to encourage models to internally learn representations that are more decomposable. Unlike most prior works that rely on manual human-identification of generative factors/features underlying the data, this project’s use of SAE provides a non-supervised method of learning feature disentanglement <a href="#Burgess">[2]</a>.
+			</p>
+			<p>
+			We fine-tune this augmented model with a new loss function that combines, in a controllable and schedulable way, the original base model’s loss function with the SAE’s loss function to encourage the model to learn sparser internal representations while still performing well on its intended task. Since robustness and sensitivity to distributional shifts in data are particularly relevant in the vision domain, we perform our analyses on a vision transformer model.
+			</p>
+			<p>
+			We find that introducing an SAE-augmented loss function when fine-tuning a ViT can outperform fine-tuning the original base model without the SAE-augmented loss. Notably, we find that an expansion factor of 32 with 𝛼=0.9 outperformed our bassline model on nearly all our evaluations on not only the original task performance but also robustness evaluations.
+			</p>
 		    </div>
 		</div>
 
@@ -259,49 +305,33 @@
 		    <div class="main-content-block">
 					<h1>Related Works</h1>
 				<h2>SAEs</h2> 
-				Today, still little is known about the mechanisms behind how powerful deep learning models actually work [CITATION]. The field of mechanistic interpretability aims to break down the black box and decompose the internal workings of models into organized interactions between specialized components. <br><br>
-
-				Deep learning models have been found to exhibit polysemanticity, meaning features can be spread across multiple neurons. This is likely due to the model’s latent space being significantly smaller than the number of possible features it could learn (https://arxiv.org/pdf/2309.08600). As such, to understand discrete learned features in a model, one must disentangle the overlapping features in activation vectors. One popular such tool is the Sparse Autoencoder (SAE), which attempts to disentangle model activation vectors into more sparsely-activating higher-dimensional representation using an autoencoder structure. By imposing an L1-norm penalty and providing a larger representation dimension, SAEs provide us with a space where individual neurons correspond more directly with distinct interpretable features (https://www.alignmentforum.org/posts/z6QQJbtpkEAX3Aojj/interim-research-report-taking-features-out-of-superposition). <br><br>
-				
+				<p>
+				Today, still little is known about the mechanisms behind how powerful deep learning models actually work <a href="#Rai">[16]</a>. The field of mechanistic interpretability aims to break down the black box and decompose the internal workings of models into organized interactions between specialized components.
+				</p>
+				<p>
+				Deep learning models have been found to exhibit polysemanticity, meaning features can be spread across multiple neurons. This is likely due to the model’s latent space being significantly smaller than the number of possible features it could learn <a href="#Cunningham">[3]</a>. As such, to understand discrete learned features in a model, one must disentangle the overlapping features in activation vectors. One popular such tool is the Sparse Autoencoder (SAE), which attempts to disentangle model activation vectors into more sparsely-activating higher-dimensional representation using an autoencoder structure. By imposing an L1-norm penalty and providing a larger representation dimension, SAEs provide us with a space where individual neurons correspond more directly with distinct interpretable features <a href="#Sharkey">[4]</a>. 
+				</p>
+				<p>
 				<h2>Feature Disentanglement and Model Robustness</h2>
-				There is a known tradeoff between reconstruction fidelity and sparsity in SAEs. A model that has a lower reconstruction to sparsity tradeoff is able to separate concrete concepts that are faithful to the original representation. In this blog post, we will call the degree to which we can disentangle a model’s learned features its degree of separability. <br><br>
-
-				Model robustness is defined as a model’s tolerance against shifts in the data, such as perturbations in the form of intentional attacks or filters or drifts in the data distribution (https://arxiv.org/html/2404.00897v2). A model that is more robust should be able to maintain its performance even with such input variations. <br><br>
-
-				Past works have shown that, in general, enforcing higher levels of activation sparsity in nonlinear models can lead to stronger adversarial robustness, although excessive sparsity beyond a particular threshold can lead to degradation in performance (https://arxiv.org/pdf/1810.09619). Prior works also suggest that separability, or disentanglement, of model representations into distinct features provides models with additional discriminative power that improves robustness of learned representations as well as generalization to out-of-distirbution data (https://arxiv.org/pdf/1902.11134, https://arxiv.org/pdf/1804.03599). However, most prior works examined feature separability from the perspective of human-determined feature categories or generative factors, requiring supervision. <br><br>
-
+				There is a known tradeoff between reconstruction fidelity and sparsity in SAEs. A model that has a lower reconstruction to sparsity tradeoff is able to separate concrete concepts that are faithful to the original representation. In this blog post, we will call the degree to which we can disentangle a model’s learned features its degree of separability.
+				</p>
+				<p>
+				Model robustness is defined as a model’s tolerance against shifts in the data, such as perturbations in the form of intentional attacks or filters or drifts in the data distribution <a href="#Braiek">[5]</a>. A model that is more robust should be able to maintain its performance even with such input variations.
+				</p>
+				<p>
+				Past works have shown that, in general, enforcing higher levels of activation sparsity in nonlinear models can lead to stronger adversarial robustness, although excessive sparsity beyond a particular threshold can lead to degradation in performance <a href="#Guo">[6]</a>. Prior works also suggest that separability, or disentanglement, of model representations into distinct features provides models with additional discriminative power that improves robustness of learned representations as well as generalization to out-of-distribution data <a href="#Duan">[7]</a> <a href="#Burgess">[2]</a>. However, most prior works examined feature separability from the perspective of human-determined feature categories or generative factors, requiring supervision.
+				</p>
 				<h2>Vision Transformers</h2>
-				In recent years, vision transformers (ViTs) have superseded CNNs as the state-of-the-art choice for vision tasks like image classification (https://arxiv.org/pdf/2403.17561). Introduced by (https://arxiv.org/abs/2010.11929), ViTs typically process images as a series of patches and process these through several layers of multi-headed attention and non-linear multi-layer perceptrons. [EXPLAIN MORE ABOUT RESIDUAL STREAM] <br><br>
-
-				Traditionally, SAEs have been trained on LLMs and have found interpretable feature directions and circuits responsible for various tasks (https://arxiv.org/pdf/2309.08600, https://arxiv.org/pdf/2405.12522). Recently, SAEs have also been extended to ViTs, like CLIP, as well and have been found to uncover meaningful and robust visual features (https://arxiv.org/pdf/2502.06755v1, https://arxiv.org/pdf/2508.11277). SAEs are generally trained on later layers of ViT models, such the penultimate layer, as these layers tend to exhibit a greater number of learned features and higher ontological coverage (https://arxiv.org/pdf/2508.11277).  <br><br>
-
-          Now let's write some math!<br>
-          <center>
-            <math xmlns="http://www.w3.org/1998/Math/MathML">
-              <mrow>
-                <mrow>
-                  <mo>&#x2202;</mo>
-                  <mi>y</mi>
-                </mrow>
-                <mo>/</mo>
-                <mrow>
-                  <mo>&#x2202;</mo>
-                  <mi>x</mi>
-                </mrow>
-              </mrow>
-              <mo>=</mo>
-              <mi>x</mi>
-            </math>
-          </center>
-          <br>
-          It's probably best to ask an LLM to help do the web
-          formatting for math. You can tell it "convert this latex equation into MathML: $$\frac{\partial dy}{\partial dx} = x$$"
-          But it took me a few tries. So, if you get frustrated, you can embed an image of the equation, or use other packages for
-          rendering equations on webpages.
+				<p>
+				In recent years, vision transformers (ViTs) have superseded CNNs as the state-of-the-art choice for many vision tasks like image classification <a href="#Noor">[2]</a>. Introduced by <a href="#Dosovitskiy">[2]</a>, ViTs typically process images as a series of patches and process these through several layers of multi-headed attention and non-linear multi-layer perceptron (MLP).
+				</p>
+				<p>
+				Traditionally, SAEs have been trained on LLMs and have found interpretable feature directions and circuits responsible for various tasks <a href="#Noor">[8]</a> <a href="#O'Neill">[10]</a>. Recently, SAEs have also been extended to ViTs, like CLIP, as well and have been found to uncover meaningful and robust visual features <a href="#Stevens">[11]</a>. SAEs are generally trained on later layers of ViT models, such the penultimate layer, as these layers tend to exhibit a greater number of learned features and higher ontological coverage <a href="#Olson">[1]</a>.
+				</p>
+          
 		    </div>
-		    <div class="margin-right-block" style="transform: translate(0%, -100%);"> <!-- you can move the margin notes up and down with translate -->
-          Interestingly, Plato also asked if X does Y, in <a href="#ref_1">[1]</a>.
-		    </div>
+				<div class="margin-right-block" style="transform: translate(0%, -100%);"> <!-- you can move the margin notes up and down with translate -->
+				</div>
 		</div>
 
 		<div class="content-margin-container" id="methods">
@@ -309,12 +339,16 @@
 				</div>
 		    <div class="main-content-block">
 					<h1>Methods</h1>
-					In this project, we examine whether promoting increased feature-separability of representations within a model can improve model robustness. Rather than only enforce disentanglement by enforcing some kind of information bottleneck (or sparsity penalty) in the final objective, as https://arxiv.org/pdf/1804.03599 does, we apply this penalty within an internal layer of the model. The goal is to introduce separable representations in the model’s learned internal concepts rather than in the output itself. <br><br>
-
+					<p>
+					In this project, we examine whether promoting increased feature-separability of representations within a model can improve model robustness. Rather than only enforce disentanglement by enforcing some kind of information bottleneck (or sparsity penalty) in the final objective, as Burgess et al. <a href="#Burgess">[2]</a> does, we apply this penalty within an internal layer of the model . The goal is to introduce separable representations in the model’s learned internal concepts rather than in the output itself.
+					</p>
 					<h2>Augmented Model and Modified Loss Function</h2>
-					To do this, we use the feature-disentanglement power of SAEs to quantify the separability of learned features within representations at a particular layer of a vision model. In particular, we use the pre-trained Google ViT which has 12 layers, a hidden dimension of D=768, and 12 attention heads per layer (https://arxiv.org/abs/2010.11929). This ViT was pre-trained for classification tasks on ImageNet-21k and fine-tuned on ImageNet-1K (https://huggingface.co/google/vit-base-patch16-224). <br><br>
-
-					We provide a soft nudge for the ViT to learn more separable features in the post-layer-11 (inspired by https://arxiv.org/pdf/2502.06755v1) residual stream by attaching a ReLU SAE on the residual stream at the end of the layer, and then fine-tuning the automated model (ViT + SAE) on ImageNet-1K using a loss function combining the SAE loss with the original cross-entropy (CE) loss for image classification. We introduce a hyperparameter, 𝛼 (0 ≤ 𝛼 ≤ 1) that controls the weight placed on the CE loss vs the SAE loss. <br><br>
+					<p>
+					To do this, we use the feature-disentanglement power of SAEs to quantify the separability of learned features within representations at a particular layer of a vision model. In particular, we use the pre-trained Google ViT which has 12 layers, a hidden dimension of D=768, and 12 attention heads per layer. This ViT was pre-trained for classification tasks on ImageNet-21k and fine-tuned on ImageNet-1K <a href="#Dosovitskiy">[9]</a>.
+					</p>
+					<p>
+					We provide a soft nudge for the ViT to learn more separable features from the post-layer-11 representations (inspired by Stevens et al. <a href="#Stevens">[11]</a>) by attaching a ReLU SAE at the end of the layer, and then fine-tuning the automated model (ViT + SAE) on ImageNet-1K using a loss function combining the SAE loss with the original cross-entropy (CE) loss for image classification. We introduce a hyperparameter, 𝛼 (0 ≤ 𝛼 ≤ 1) that controls the weight placed on the CE loss vs the SAE loss.
+					</p>
 					
 					<center>
 					<math xmlns="http://www.w3.org/1998/Math/MathML">
@@ -353,11 +387,11 @@
 						<img src="./images/architecture.png" width=1800px/>
 						</div>
 						<div class="margin-right-block">
-									Caption for the image.
+								General architecture for SAE-augmented ViT. Each vision transformer block contains LayerNorm, Multi-Head Attention, and MLP layers.
 					</div> 
 					</center>
 
-					For our SAE, we use ReLU autoencoders with a simple L1 penalty, a simple SAE construction that serves as a common baseline (https://arxiv.org/pdf/2406.04093). (However, we note that recent papers have introduced other types of SAEs, including TopK SAEs, and Gated SAEs, which should be explored in future analyses (https://arxiv.org/pdf/2508.11277).) For a single patch embedding extracted from the residual stream, the ReLU SAE loss is the sum of reconstruction error of the embedding* and the L1-norm penalty as shown below<br><br>
+					For our SAE, we use ReLU autoencoders with a simple L1 penalty, a simple SAE construction that serves as a common baseline <a href="#Gao">[12]</a>. (However, we note that recent papers have introduced other types of SAEs, including TopK SAEs, and Gated SAEs, which should be explored in future analyses <a href="#Olson">[1]</a>.) For a single patch embedding extracted from the residual stream, the ReLU SAE loss is the sum of reconstruction error of the embedding** and the L1-norm penalty as shown below.
 					
 					<center>
 					<math xmlns="http://www.w3.org/1998/Math/MathML">
@@ -436,48 +470,93 @@
 					</math>
 					<br><br>
 					</center>
-					
-					 Both the reconstruction error and L1-norms are calculated for individual patches and are averaged across all patches for an image. In this work, we additionally divide the L1-norms by D, the model dimension as to not let the penalty scale with representation dimension.<br><br>
-
-					*Note: For training stability, we normalize the latent representation, z, across all N patches for each image using [INSERT EQUATION].
+					<p>
+					 Both the reconstruction error and L1-norms are calculated for individual patches and are averaged across all patches for an image. In this work, we additionally divide the L1-norms by D, the model dimension as to not let the penalty scale with representation dimension.
+					 </p>
 
 					<h2>Fine-tuning Procedure</h2>
-					We fine-tune the augmented model using training and validation subsets of ImageNet-1k of size 10,000 and 1,000 images respectively. Given the small fine-tuning dataset size (as we were restricted by time and compute resources), we balanced all subsets taken from ImageNet-1k across the 1000 classes. <br><br>
-
-					During fine-tuning we froze the image embedding layer as well as the first 10 transformer blocks so as to not affect foundational, low-level structures learned in earlier model layers. We used the AdamW optimizer with a learning rate of 0.001 and 0.01 weight decay.<br><br>
-
-					We sweep 3 common SAE expansion factors: 2, 4, and 32 to examine the effect of providing larger representation spaces for disentanglement. We also sweep the various levels of 𝛼: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]. 𝛼=0 is equivalent to only training on the SAE loss whereas 𝛼=1 is equivalent to only training on the CE loss. <br><br>
-					
-					<strong>𝛼=1 model serves as a baseline for comparison as it completely disregards the SAE loss and represents fine-tuning the model without any guidance towards sparser internal representations.</strong> <br><br>
-
-					Since the SAE layer is initialized randomly but the other layers were pretrained, it may be beneficial to have the model focus on learning SAE weights at the beginning of fine-tuning while focusing more on tuning the unfrozen ViT layers once the SAE weights have been learned. Thus, <strong> we also run all tests with an 𝛼-scheduler </strong>, where 𝛼 grows linearly from 0.0 (SAE loss only) to 1.0 (CE loss only) across the 30 epochs, and compare this to using a fixed choice of 𝛼. Note that this 𝛼-scheduling is analogous to introducing differential learning rates on the ViT and the SAE, except that the balance of focus on the two parameter sets swap over time. <br><br>
-
+					<p>
+					We fine-tune the augmented model using training and validation subsets of ImageNet-1k of size 10,000 and 1,000 images respectively. Given the small fine-tuning dataset size (as we were restricted by time and compute resources), we balanced all subsets taken from ImageNet-1k across the 1000 classes.
+					</p>
+					<p>
+					During fine-tuning we froze the image embedding layer as well as the first 10 transformer blocks so as to not affect foundational, low-level structures learned in earlier model layers. We used the AdamW optimizer with a learning rate of 0.001 and 0.01 weight decay.
+					</p>
+					<p>
+					We sweep 3 common SAE expansion factors: 2, 4, and 32 to examine the effect of providing larger representation spaces for disentanglement. We also sweep the various levels of 𝛼: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]. 𝛼=0 is equivalent to only training on the SAE loss whereas 𝛼=1 is equivalent to only training on the CE loss.
+					</p>
+					<p>
+					<i>𝛼=1 model serves as a baseline for comparison as it completely disregards the SAE loss and represents fine-tuning the model without any guidance towards sparser internal representations.</i>
+					</p>
+					<p>
+					Since the SAE layer is initialized randomly but the other layers were pretrained, it may be beneficial to have the model focus on learning SAE weights at the beginning of fine-tuning while focusing more on tuning the unfrozen ViT layers once the SAE weights have been learned. Thus, <strong> we also run all tests with an 𝛼-scheduler </strong>, where 𝛼 grows linearly from 0.0 (SAE loss only) to 1.0 (CE loss only) across the 30 epochs, and compare this to using a fixed choice of 𝛼. Note that this 𝛼-scheduling is analogous to introducing differential learning rates on the ViT and the SAE, except that the balance of focus on the two parameter sets swap over time.
+					</p>
+					<p>
 					For all training, we train with mini-batch gradient descent for a maximum of 30 epochs and early stopping with a patience factor on the validation loss of 10 epochs. We extract the best-performing model on validation loss for downstream evaluations. 
-
+					</p>
+					
 					<h2>Evaluation Metrics</h2>
-					First, we test the models on a held-out subset of ImageNet-1k to evaluate its performance on the task it was fine-tuned on. We want to make sure that the model has not lost its capabilities that it was initially trained for. <br><br>
-
-					Next, to evaluate the robustness of the fine-tuned ViT model, we evaluate the models in two ways. To evaluate model robustness to minor distribution shifts, we test the models on ImageNet-V2 with matched-frequency sampling (https://proceedings.mlr.press/v97/recht19a.html). 
-
-					To evaluate model robustness to image perturbations like filters, we also evaluate models on a set of blurred images from the held-out test subset of ImageNet-1k. We use a Gaussian blurring kernel with radius 3. <br><br>
+					<p>
+					First, we test the models on a held-out subset of ImageNet-1k to evaluate its performance on the task it was fine-tuned on. We want to make sure that the model has not lost its capabilities that it was initially trained for.
+					</p>
+					<p>
+					Next, to evaluate the robustness of the fine-tuned ViT model, we evaluate the models in two ways. To evaluate model robustness to minor distribution shifts, we test the models on ImageNet-V2 with matched-frequency sampling <a href="#Recht">[13]</a>. 
+					</p>
+					<p>
+					To evaluate model robustness to image perturbations like filters, we also evaluate models on a set of blurred images from the held-out test subset of ImageNet-1k. We use a Gaussian blurring kernel with radius 3.
+					</p>
 					<center>
 					<div class="main-content-block">
 						<!--You can embed an image like this:-->
 						<img src="./images/blur.png" width=512px/>
 						</div>
 						<div class="margin-right-block">
-									Caption for the image.
+									Original image vs. Blurred image using a Gaussian blur radius of 3.
 					</div> 
 					</center>
-					All three evaluation datasets have 2,000 image samples. For each dataset we calculate 2 metrics: accuracy and expected calibration error (ECE). We calculate ECE according to https://iclr-blogposts.github.io/2025/blog/calibration/ using 15 bins, a common practice (https://proceedings.mlr.press/v151/roelofs22a/roelofs22a.pdf). [EXPLAIN ECE] ECE IS 0 TO 1, Lower ECE scores are better. <br><br>
+					<p>
+					All three evaluation datasets have 2,000 image samples. For each dataset we calculate 2 metrics: accuracy and expected calibration error (ECE). We calculate ECE according to <a href="#Pavlovic">[14]</a> using 15 equally bins on [0, 1], a common practice <a href="#Roelofs">[15]</a>. ECE ranges frmo 0 to 1, with lower ECE scores indicating better calibration, and serves as an indication of how well a model's prediction confidence aligns with actual its prediction accuracy. Splitting the n data points into m=15 bins, where bin i is denoted as B<sub>i</sub>, ECE is calculated as follows: </p>
+					<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+					<mrow>
+						<mi>ECE</mi>
+						<mo>=</mo>
 
+						<munderover>
+						<mo>&#x2211;</mo>
+						<mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow>
+						<mi>m</mi>
+						</munderover>
+
+						<mfrac>
+						<mrow>
+							<mo stretchy="true">|</mo>
+							<msub><mi>B</mi><mi>i</mi></msub>
+							<mo stretchy="true">|</mo>
+						</mrow>
+						<mi>n</mi>
+						</mfrac>
+
+						<mo stretchy="true">|</mo>
+						<mrow>
+						<mi>acc</mi>
+						<mo>(</mo><msub><mi>B</mi><mi>i</mi></msub><mo>)</mo>
+						<mo>-</mo>
+						<mi>conf</mi>
+						<mo>(</mo><msub><mi>B</mi><mi>i</mi></msub><mo>)</mo>
+						</mrow>
+						<mo stretchy="true">|</mo>
+
+					</mrow>
+					</math>
+
+					<p>
 					In summary we provide the following <strong>6 evaluation metrics for all fine-tuned models</strong>: <br>
 					- ImageNet-1k accuracy and ECE <br>
 					- ImageNet-v2 accuracy and ECE <br>
-					- Blurred ImageNet-1k accuracy and ECE <br>
-
+					- Blurred ImageNet-1k accuracy and ECE 
+					</p>
 		    </div>
 		    <div class="margin-right-block">
+				**Note: For training stability, we normalize the latent representation, z, across all N patches for each image.
 		    </div>
 		</div>
 
@@ -486,15 +565,25 @@
 			</div>
 			<div class="main-content-block">
 				<h1>Results</h1>
+				<p>
+				In this section, we present the results of our experiments. Note that we always treat 𝛼=1.0 as the baseline model (i.e. where the SAE component is disregarded completely in the loss).
+				</p>
+				<h2>Comparing choices 𝛼 to the baseline</h2>
+				<p>
+				First, let us take a general look at how a fixed choice 𝛼 value affects accuracy and ECE of the fine-tuned models. Note that the y-axis for the ECE graphs are inverted for easier interpretation since lower ECE values and and higher accuracy indicate stronger performance. We separately analyze the effect of 𝛼 within each of the expansion factor groups, displaying them as separate line plots.
+				</p>
 				<center>
 					<div class="main-content-block">
 						<!--You can embed an image like this:-->
 						<img src="./images/performance_by_alpha.png" width=1800px/>
 						</div>
 						<div class="margin-right-block">
-									Caption for the image.
+									Model accuracy (row 1) and ECE (row 2) on 3 evaluation datasets, for various levels of alpha and expansion factors. Dotted lines indicate the metric calculated on the baseline model for each expansion factor.
 					</div> 
 				</center>
+				<p>
+				Unsurprisingly, we can see that using alpha=0.0, i.e. training only on the SAE loss, completely degrades performance. However, all other swept values of alpha seem to recover accuracy and ECE to approximately the same level as the baseline model. To more explicitly provide a comparison of the other alpha values to the baseline, we can visualize the percentage change in accuracy and ECE for every model relative to the corresponding baseline model in its expansion factor group. Once again, the y-axis for ECE change is flipped for easier interpretability.
+				</p>
 
 				<center>
 					<div class="main-content-block">
@@ -502,33 +591,130 @@
 						<img src="./images/percent_change_from_baseline.png" width=1800px/>
 						</div>
 						<div class="margin-right-block">
-									Caption for the image.
+									Percent change in accuracy (row 1) and ECE (row 2) for various levels of alpha compared to the baseline (𝛼=1.0), grouped by expansion factor. The dotted line indicates 0%. 𝛼=1.0 is excluded because it is the baseline for comparison (i.e. y=0%).
 					</div> 
 				</center>
+				<p>
+				First, looking at accuracy, we find that for 𝛼=0.1 to 𝛼=0.9, there is no clear pattern for any of the expansion factors, as they all seem to hover close to 0% change from the baseline. However, on ImageNet-V2, we see that the models tuned with an SAE expansion factor of 32 exceed baseline performance by a substantial margin for many choices of 𝛼, include 𝛼=0.1, 0.3, 0.5, 0.7, 0.8, and 0.9, with the best model outperforming its correpsponding baseline model by around 25%. For Blurred ImageNet-1K, we don't see significant improvement or degredation in accuracy for any 𝛼 other than 𝛼=0.0 (significant degradation) and 𝛼=0.9 (moderate improvement).
+				</p>
+				<p>
+				Next, we turn our attention to ECE. Note that the y-axis is inverted. We will refer to models with lower ECE values as being more highly calibrated. We find that for the smaller expansion factors (2, 4), there is not much improvement from the baseline in terms of calibration on either ImageNet-1k or ImageNet-V2; for the larger expansion factor (32), there is actually degredation in calibration on both datasets for most choices of 𝛼, particularly smaller ones. On the Blurred ImageNet-1k dataset, we find that several choices of 𝛼 lead to stronger calibration than the baseline for the larger 2 expansion factor groups (i.e. 4 and 32). In fact, for expansion factor 4, we see that all choices of 𝛼 lead to strictly higher calibration on Blurred ImageNet-1k than the baseline. 
+				</p>
+				<p>
+				𝛼=0 consistently yields highly calibrated models, which initially seems to contradict their low accuracies. However, since ECE is a function of the difference between confidence and accuracy, poorly-performing models can still be well calibrated as long as their confidence matches their accuracy of prediction.
+				</p>
 
+				<h2>Comparing fixed choices of 𝛼 to a scheduled 𝛼</h2>
+
+				<p>
+				Next, we examine take a look at models fine-tuned with a scheduled 𝛼, and we plot the percent change in accuracy and ECE of all the fixed 𝛼 models relative to the scheduled 𝛼 model within the same expansion group. 
+				</p>
+				<p>
+				First, looking at accuracy we find that 𝛼=0 produces exceedingly poor results. For other static choices of 𝛼, we find that, for the most part, results are mixed and there is not a consistent trend. However, we do see that on ImageNet-V2, the baseline model (𝛼=1.0) actually performs nearly 20% worse than does using the scheduled 𝛼 when using expansion factor of 32. We also see that on Blurred ImageNet-1k, all fixed levels of 𝛼 (except 0.0) yield higher accuracies than using a scheduled 𝛼.
+				</p>
+				<p>
+				Turning our attention to ECE, we notice interestingly that using a static 𝛼 yields worse calibration than using a scheduled 𝛼, and this is pretty consistent across the 3 datasets as well as expansion factors (minus a few cases).
+				</p>
 				<center>
 					<div class="main-content-block">
 						<!--You can embed an image like this:-->
 						<img src="./images/precent_change_from_scheduled.png" width=1800/>
 						</div>
 						<div class="margin-right-block">
-									Caption for the image.
+									Percent change in accuracy (row 1) and ECE (row 2) for various levels of alpha compared to the scheduled-𝛼 model, grouped by expansion factor. The dotted line indicates 0%. 𝛼=1.0 is excluded because it is the baseline for comparison (i.e. y=0%).
 					</div> 
 				</center>
+				<p>
 
+				<h2>Identifying High-Performing Models</h2>
+				Finally, we want to determine whether any of the models exceed the performance of the baseline model on all datasets for accuracy or ECE. 
+				</p>
 				<center>
 					<div class="main-content-block">
 						<!--You can embed an image like this:-->
 						<img src="./images/num_beat_baseline.png" width=1800px/>
 						</div>
 						<div class="margin-right-block">
-									Caption for the image.
+									Number of 𝛼-values for which the model beats the baseline model on all the evaluation datasets for accuracy, ECE, or both.
 					</div> 
 				</center>
 				<p>
-					Present results here!
+				We find that when using expansion factor 2, three of the models exceeded the baseline on the ECE metric across all 3 datasets. When we use an expansion factor of 4, eight of the models consistently exceeded the baseline on the ECE metric. However, neither of these groups consistently exceeded the baseline on accuracy.
+				</p>
+				<p>
+				However, when looking at expansion factor 32, we see that 6 models exceeded the baseline model on accuracy. Below are model cards showing the performance of each of these 6 models and their performance on the different datasets as well as a comparison to their baseline. Positive changes in accuracy and negative changes to ECE are considered improvements. 
 				</p>
 				
+				<div class="models-grid">
+					<div class="model-card">
+						<div class="model-header">Alpha 0.1 (Expansion 32)</div>
+						<hr>
+						<div class="metric good">✓ ImageNet-1K Acc: 0.7035 (Baseline: 0.6980, Change: +0.79%)</div>
+						<div class="metric good">✓ ImageNet-V2 Acc: 0.0145 (Baseline: 0.0110, Change: +31.82%)</div>
+						<div class="metric good">✓ Blurred Acc: 0.6210 (Baseline: 0.6110, Change: +1.64%)</div>
+						<div class="metric bad">✗ ImageNet-1K ECE: 0.1636 (Baseline: 0.1360, Change: +20.33%)</div>
+						<div class="metric bad">✗ ImageNet-V2 ECE: 0.7926 (Baseline: 0.7522, Change: +5.38%)</div>
+						<div class="metric bad">✗ Blurred ECE: 0.1900 (Baseline: 0.1589, Change: +19.56%)</div>
+					</div>
+
+					<div class="model-card">
+						<div class="model-header">Alpha 0.2 (Expansion 32)</div>
+						<hr>
+						<div class="metric good">✓ ImageNet-1K Acc: 0.7255 (Baseline: 0.6980, Change: +3.94%)</div>
+						<div class="metric good">✓ ImageNet-V2 Acc: 0.0120 (Baseline: 0.0110, Change: +9.09%)</div>
+						<div class="metric good">✓ Blurred Acc: 0.6470 (Baseline: 0.6110, Change: +5.89%)</div>
+						<div class="metric bad">✗ ImageNet-1K ECE: 0.1515 (Baseline: 0.1360, Change: +11.43%)</div>
+						<div class="metric bad">✗ ImageNet-V2 ECE: 0.7899 (Baseline: 0.7522, Change: +5.02%)</div>
+						<div class="metric bad">✗ Blurred ECE: 0.1744 (Baseline: 0.1589, Change: +9.75%)</div>
+					</div>
+
+					<div class="model-card">
+						<div class="model-header">Alpha 0.3 (Expansion 32)</div>
+						<hr>
+						<div class="metric good">✓ ImageNet-1K Acc: 0.7115 (Baseline: 0.6980, Change: +1.93%)</div>
+						<div class="metric good">✓ ImageNet-V2 Acc: 0.0130 (Baseline: 0.0110, Change: +18.18%)</div>
+						<div class="metric good">✓ Blurred Acc: 0.6435 (Baseline: 0.6110, Change: +5.32%)</div>
+						<div class="metric bad">✗ ImageNet-1K ECE: 0.1583 (Baseline: 0.1360, Change: +16.43%)</div>
+						<div class="metric bad">✗ ImageNet-V2 ECE: 0.7907 (Baseline: 0.7522, Change: +5.12%)</div>
+						<div class="metric bad">✗ Blurred ECE: 0.1656 (Baseline: 0.1589, Change: +4.22%)</div>
+					</div>
+
+					<div class="model-card">
+						<div class="model-header">Alpha 0.5 (Expansion 32)</div>
+						<hr>
+						<div class="metric good">✓ ImageNet-1K Acc: 0.7130 (Baseline: 0.6980, Change: +2.15%)</div>
+						<div class="metric good">✓ ImageNet-V2 Acc: 0.0140 (Baseline: 0.0110, Change: +27.27%)</div>
+						<div class="metric good">✓ Blurred Acc: 0.6525 (Baseline: 0.6110, Change: +6.79%)</div>
+						<div class="metric bad">✗ ImageNet-1K ECE: 0.1574 (Baseline: 0.1360, Change: +15.74%)</div>
+						<div class="metric bad">✗ ImageNet-V2 ECE: 0.7966 (Baseline: 0.7522, Change: +5.91%)</div>
+						<div class="metric bad">✗ Blurred ECE: 0.1646 (Baseline: 0.1589, Change: +3.61%)</div>
+					</div>
+
+					<div class="model-card">
+						<div class="model-header">Alpha 0.7 (Expansion 32)</div>
+						<hr>
+						<div class="metric good">✓ ImageNet-1K Acc: 0.7065 (Baseline: 0.6980, Change: +1.22%)</div>
+						<div class="metric good">✓ ImageNet-V2 Acc: 0.0125 (Baseline: 0.0110, Change: +13.64%)</div>
+						<div class="metric good">✓ Blurred Acc: 0.6290 (Baseline: 0.6110, Change: +2.95%)</div>
+						<div class="metric bad">✗ ImageNet-1K ECE: 0.1572 (Baseline: 0.1360, Change: +15.66%)</div>
+						<div class="metric bad">✗ ImageNet-V2 ECE: 0.7813 (Baseline: 0.7522, Change: +3.87%)</div>
+						<div class="metric bad">✗ Blurred ECE: 0.1769 (Baseline: 0.1589, Change: +11.32%)</div>
+					</div>
+
+					<div class="model-card highlight">
+						<div class="model-header">Alpha 0.9 (Expansion 32)</div>
+						<hr>
+						<div class="metric good">✓ ImageNet-1K Acc: 0.7635 (Baseline: 0.6980, Change: +9.38%)</div>
+						<div class="metric good">✓ ImageNet-V2 Acc: 0.0135 (Baseline: 0.0110, Change: +22.73%)</div>
+						<div class="metric good">✓ Blurred Acc: 0.6970 (Baseline: 0.6110, Change: +14.08%)</div>
+						<div class="metric good">✓ ImageNet-1K ECE: 0.1191 (Baseline: 0.1360, Change: -12.41%)</div>
+						<div class="metric bad">✗ ImageNet-V2 ECE: 0.7975 (Baseline: 0.7522, Change: +6.03%)</div>
+						<div class="metric good">✓ Blurred ECE: 0.1240 (Baseline: 0.1589, Change: -21.95%)</div>
+					</div>
+				</div>
+				<p>
+					We can see that using an expansion factor of 32 with 𝛼=0.9 (i.e. loss function focuses mostly on CE loss but takes into account SAE loss as well) yields strong results, <i>outperforming the baseline model (𝛼=1.0) across nearly all (5/6) of our metrics</i> except for ECE on ImageNet-V2. Not only did this model perform better on the downstream task that it was trained for (ImageNet-1K), it outperformed the baseline on robustness evaluations on ImageNet-V2 (22.73% increase in accuracy) and a blurred version of a subset of ImageNet-1K.
+				</p>
 
 			</div>
 			<div class="margin-right-block">
@@ -540,12 +726,28 @@
 			<div class="margin-left-block">
 			</div>
 			<div class="main-content-block">
-				<h1>Conclusion</h1>
+				<h1>Conclusions</h1>
 				<p>
-					In conclusion, this project demonstrates the potential of sparse autoencoders (SAEs) to enhance the robustness and interpretability of vision transformer models. By fine-tuning models with a combined loss function that incorporates the SAE loss, we observed improvements in feature disentanglement and robustness to distributional shifts.
+					In conclusion, this project demonstrates the potential of sparse autoencoders (SAEs) not only as a way to extract interpretable features from large models but also as a structural augmentation during training to enhance the robustness of vision models. By fine-tuning a ViT with a combined loss function that incorporates the SAE loss, we observed, in several cases, improvements the model's performance on the original downstream task it was trained for (i.e. classification on ImageNet-1K) and additionally on robustness evluations (i.e. on ImageNet-V2 and Blurred ImageNet-1k). 
+					<p>
+					We found that, in general, larger expansion factors like 32 produced more accurate models when evaluated on the 3 datasets. A possible explanation for this is that expansion factors like 2 and 4 are too small for the model to meaningfully disentangle its representation into sparse components, so including the SAE loss in the final loss function pushes the model towards some misaligned objective that reduces SAE loss without actually properly separating out sparse features. We found that scheduling 𝛼 leads to stronger calibration compared to using static choices of 𝛼, although this is less meaningful given that low ECE can be achieved (and was observed) even with inaccurate models.
+
+					In conclusion, we observed that forcing the model to learn sparser internal representations using an SAE-augmented loss function could increase model robustness and original task performance by large margins, especially when the expansion factor is large. 
+					</p>
+					<h2>Limitations</h2>
 				</p>
+					This work was compute-limited, so testing much larger expansion factors was not viable. There is a need for a more in-depth analysis of how using an SAE with larger expansion factors beyond 2, 4, and 32 may influence model robustness. These larger expansion factors may allow the model to disentangle features even more faithfully, as the space of possible concepts is possible much larger than the model dimension. Also, this work focused on the most simple form of SAEs, i.e. ReLU SAE with a L1 penalty, but recent literature has introduced many alternate forms of SAEs that boast better reconstruction-sparsity tradeoff.
+				</p>
+					<h2>Future Work</h2>
 				<p>
-					Future work could explore the use of more advanced SAE architectures, larger datasets, and additional evaluation metrics to further validate and extend these findings. Additionally, applying this approach to other model architectures and domains could provide further insights into its generalizability.
+					Future work could explore the use of more recent SAE architectures, larger and more diverse robustness datasets, and additional evaluation metrics (beyond accuracy and ECE) to further validate and extend these findings. Additionally, applying this approach to other model architectures (beyond ViTs) could provide further insights into the generalizability of using SAEs as an architectural augmentation for training more robust models.
+				</p>
+				<h2>Acknowledgements</h2>
+				<p>
+					A huge thank you to all the staff of 6.7960 for a great semester. I am especially grateful for all the feedback I received on this project from the course instructors and TAs that I bounced ideas off of. I have learned a lot and really enjoyed this class!
+				</p><p>
+					AI acknowledgement: The code for building and training the model on a hyperparameter sweep as well as evaluating the models were written by me. As suggested by course staff, I used AI to generate nice plots/visualizations based on all the data I had logged from my training and for html formatting help.
+
 				</p>
 			</div>
 			<div class="margin-right-block">
@@ -558,10 +760,37 @@
 				</div>
 		    <div class="main-content-block">
 						<div class='citation' id="references" style="height:auto"><br>
-							<span style="font-size:16px">References:</span><br><br>
-							<a id="ref_1"></a>[1] <a href="https://en.wikipedia.org/wiki/Allegory_of_the_cave">Allegory of the Cave</a>, Plato, c. 375 BC<br><br>
-							<a id="ref_2"></a>[2] <a href="">A Human-Level AGI</a>, OpenAI, 2025<br><br>
-						</div>
+    <span style="font-size:16px">References:</span><br><br>
+    <a id="Ameisen"></a>[1] <a href="https://transformer-circuits.pub/2025/attribution-graphs/methods.html">Circuit Tracing: Revealing Computational Graphs in Language Models</a>, Ameisen et al., 2025<br><br>
+    <a id="Braiek"></a>[2] <a href="https://arxiv.org/pdf/2404.00897v2">Machine Learning Robustness: A Primer</a>, Braiek, H. and Khomnh, F., 2024<br><br>
+    <a id="Burgess"></a>[3] <a href="https://arxiv.org/pdf/1804.03599">Understanding disentangling in β-VAE</a>, Burgess et al., 2025<br><br>
+    <a id="Cunningham"></a>[4] <a href="https://arxiv.org/pdf/2309.08600">Sparse Autoencoders Find Highly Interpretable Features In Language Models</a>, Cunningham et al., 2023<br><br>
+    <a id="Dosovitskiy"></a>[5] <a href="https://arxiv.org/pdf/2010.11929">An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale</a>, Dosovitskiy et al., 2021<br><br>
+    <a id="Duan"></a>[6] <a href="https://arxiv.org/pdf/1902.11134">Disentangled Deep Autoencoding Regularization for Robust Image Classification</a>, Duan et al., 2019<br><br>
+    <a id="Gao"></a>[7] <a href="https://arxiv.org/pdf/2406.04093">Scaling and evaluating sparse autoencoders</a>, Gao et al., 2024<br><br>
+    <a id="Guo"></a>[8] <a href="https://arxiv.org/pdf/1810.09619">Sparse DNNs with Improved Adversarial Robustness</a>, Guo et al., 2018<br><br>
+    <a id="Kumar"></a>[9] <a href="https://arxiv.org/pdf/2507.16278">Understanding Generalization, Robustness, and Interpretability in Low-Capacity Neural Networks</a>, Kumar et al., 2025<br><br>
+    <a id="Noor"></a>[10] <a href="https://arxiv.org/pdf/2403.17561">A Survey on State-of-the-art Deep Learning Applications and Challenges</a>, Noor, M. and Ige, A., 2025<br><br>
+    <a id="O'Neill"></a>[11] <a href="https://arxiv.org/pdf/2405.12522">Sparse Autoencoders Enable Scalable and Reliable Circuit Identification in Language Models</a>, O'Neill, C and Bui, T., 2024<br><br>
+    <a id="Olson"></a>[12] <a href="https://arxiv.org/pdf/2508.11277">Probing the Representational Power of Sparse Autoencoders in Vision Models</a>, Olson et al., 2018<br><br>
+    <a id="Pavlovic"></a>[13] <a href="https://iclr-blogposts.github.io/2025/blog/calibration/">Understanding Model Calibration - A gentle introduction and visual exploration of calibration and the expected calibration error (ECE)</a>, Pavlovic, 2025<br><br>
+    <a id="Rai"></a>[14] <a href="https://arxiv.org/pdf/2407.02646">A Practical Review of Mechanistic Interpretability for Transformer-Based Language Models</a>, Rai et al., 2025<br><br>
+    <a id="Recht"></a>[15] <a href="https://proceedings.mlr.press/v97/recht19a/recht19a.pdf">Do ImageNet Classifiers Generalize to ImageNet?</a>, Recht et al., 2019<br><br>
+    <a id="Roelofs"></a>[16] <a href="https://proceedings.mlr.press/v151/roelofs22a/roelofs22a.pdf">Mitigating Bias in Calibration Error Estimation</a>, Roelofs et al., 2022<br><br>
+    <a id="Sharkey"></a>[17] <a href="https://www.alignmentforum.org/posts/z6QQJbtpkEAX3Aojj/interim-research-report-taking-features-out-of-superposition">Taking features out of superposition with sparse autoencoders</a>, Sharkey et al., 2022<br><br>
+    <a id="Stevens"></a>[18] <a href="https://arxiv.org/pdf/2502.06755v1">Sparse Autoencoders for Scientifically Rigorous Interpretation of Vision Models</a>, Stevens et al., 2025<br><br>
+</div>
+
+<script>
+    document.querySelectorAll("a[href^='#']").forEach((link) => {
+        const id = link.getAttribute("href").substring(1);
+        const reference = document.querySelector(`a[id='${id}']`);
+        if (reference) {
+            const newNumber = Array.from(reference.parentNode.children).indexOf(reference) + 1;
+            link.innerHTML = `[${newNumber}]`;
+        }
+    });
+</script>
 		    </div>
 		    <div class="margin-right-block">
             <!-- margin notes for reference block here -->
